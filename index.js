@@ -23,13 +23,16 @@ function saveToLocalStorage(event) {
 }
 
 function displayEntry(entry) {
+
     const userListElement = document.getElementById("userList");
     const listItem = document.createElement("li");
+    listItem.className = "list-group-item";
     listItem.textContent = `${entry.Amount} - ${entry.Description} - ${entry.Category}  `;
 
     // Create delete button
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete Expense";
+    deleteBtn.className = "btn btn-danger btn-sm ms-2"
     deleteBtn.onclick = () => {
         localStorage.removeItem(entry.Category);
         listItem.remove();
@@ -38,6 +41,7 @@ function displayEntry(entry) {
     // Create edit button
     const editBtn = document.createElement("button"); 
     editBtn.textContent = "Edit Expense";
+    editBtn.className ="btn btn-secondary btn-sm ms-2";
     editBtn.onclick = () => {
         document.getElementById("amount").value = entry.Amount;
         document.getElementById("text").value = entry.Description;
@@ -50,6 +54,7 @@ function displayEntry(entry) {
     listItem.appendChild(deleteBtn);
     listItem.appendChild(editBtn);
     userListElement.appendChild(listItem);
+
 }
 
 function loadEntries() {
