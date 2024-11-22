@@ -1,69 +1,88 @@
-function saveToLocalStorage(event) {
+const apiUrl = 'http://localhost:3000/expenses';
+
+async function saveOrUpdate(event) {
     event.preventDefault();
 
     const amount = event.target.amount.value;
     const description = event.target.text.value;
     const category = event.target.expense.value;
 
-    let newEntry = {
-        Amount: amount,
-        Description: description,
-        Category: category,
-    };
+    const expenseId = event.target.dataset.id;
     
-    let userString = JSON.stringify(newEntry);
-    localStorage.setItem(category, userString);
+    if (expenseId) {
+        // Update Expense
+        try {
+             await axios.put(`${apiUrl}/${expenseId}`, {
+                amount,
+                description,
+                category,
+            });
+            event.target.dataset.id = ''; // Clear the ID
+        } catch (error) {
+            console.error('Error updating expense:', error);
+        }
+    } else {
+        // Add New Expense
+        try {
+            await axios.post(apiUrl, { amount, description, category });
+        } catch (error) {
+            console.error('Error adding expense:', error);
+        }
+    }
 
-    displayEntry(newEntry);
-
-    // Clear input fields
-    event.target.amount.value = '';
-    event.target.text.value = '';
-    event.target.expense.value = '';
+    event.target.reset();
+    loadExpenses();
 }
 
-function displayEntry(entry) {
+// Fetch and Display Expenses
+async function loadExpenses() {
+    try {
+        const response = await axios.get(apiUrl);
+        const expenses = response.data;
 
-    const userListElement = document.getElementById("userList");
-    const listItem = document.createElement("li");
-    listItem.className = "list-group-item";
-    listItem.textContent = `${entry.Amount} - ${entry.Description} - ${entry.Category}  `;
+        const userListElement = document.getElementById('userList');
+        userListElement.innerHTML = ''; 
 
-    // Create delete button
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Delete Expense";
-    deleteBtn.className = "btn btn-danger btn-sm ms-2"
-    deleteBtn.onclick = () => {
-        localStorage.removeItem(entry.Category);
-        listItem.remove();
-    };
+        expenses.forEach(expense => {
+            const listItem = document.createElement('li');
+            listItem.className = 'list-group-item';
+            listItem.textContent = `${expense.amount} - ${expense.description} - ${expense.category}`;
 
-    // Create edit button
-    const editBtn = document.createElement("button"); 
-    editBtn.textContent = "Edit Expense";
-    editBtn.className ="btn btn-secondary btn-sm ms-2";
-    editBtn.onclick = () => {
-        document.getElementById("amount").value = entry.Amount;
-        document.getElementById("text").value = entry.Description;
-        document.getElementById("expense").value = entry.Category;
+            // Delete Button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.className = 'btn btn-danger btn-sm ms-2';
+            deleteBtn.onclick = async () => {
+                try {
+                    await axios.delete(`${apiUrl}/${expense.id}`);
+                    loadExpenses();
+                } catch (error) {
+                    console.error('Error deleting expense:', error);
+                }
+            };
 
-        localStorage.removeItem(entry.Category);
-        listItem.remove();
-    };
+            // Edit Button
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.className = 'btn btn-secondary btn-sm ms-2';
+            editBtn.onclick = () => {
+                document.getElementById('amount').value = expense.amount;
+                document.getElementById('text').value = expense.description;
+                document.getElementById('expense').value = expense.category;
+                document.getElementById('Tracker').dataset.id = expense.id; 
+            };
 
-    listItem.appendChild(deleteBtn);
-    listItem.appendChild(editBtn);
-    userListElement.appendChild(listItem);
-
-}
-
-function loadEntries() {
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        const entry = JSON.parse(localStorage.getItem(key));
-        displayEntry(entry);
+            listItem.appendChild(deleteBtn);
+            listItem.appendChild(editBtn);
+            userListElement.appendChild(listItem);
+        });
+    } catch (error) {
+        console.error('Error loading expenses:', error);
     }
 }
 
-// Load entries when the page loads
-window.onload = loadEntries;
+// Attach Event Listeners
+document.getElementById('Tracker').addEventListener('submit', saveOrUpdate);
+
+// Load expenses when the page loads
+window.onload = loadExpenses;

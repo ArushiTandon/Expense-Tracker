@@ -10,19 +10,19 @@
     <div class = "container mt-5">
     <h1 class="text-center mb-4">Expense Tracker</h1>
 
-    <form id = "Tracker" onsubmit = "saveToLocalStorage(event)" class="row g-3">
+    <form id = "Tracker" class="row g-3">
 
     <div class ="col-md-4">
         <label for = "amount" class="form-label">Amount:</label>
         <div class="input-group">
         <span class="input-group-text">₹</span>
-        <input type = "number" name = "amount" id="amount" class="form-control">
+        <input type = "number" name = "amount" id="amount" class="form-control" required>
         </div>
     </div> 
 
     <div class ="col-md-4">
         <label for = "text" class="form-label">Description:</label>
-        <input type = "text" name = "text" id="text" class="form-control" placeholder="Description here">
+        <input type = "text" name = "text" id="text" class="form-control" placeholder="Description here" required>
     </div>
 
     <div class = "col-md-4">
@@ -47,6 +47,7 @@
     <ul id="userList" class="list-group mt-4"> </ul>
 </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src = "index.js"></script>
 
